@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ config.title }}{% endblock title %}</title>
+  <meta name="description" content="{% block description %}{{ config.description }}{% endblock description %}">
+  <link rel="stylesheet" href="{{ get_url(path='css/style.css') }}">
+  {% if config.generate_feeds %}
+  <link rel="alternate" type="application/atom+xml" title="{{ config.title }}" href="{{ get_url(path='atom.xml') }}">
+  {% endif %}
+  {% block extra_head %}{% endblock extra_head %}
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="{{ get_url(path='/') }}" class="site-title">{{ config.title }}</a>
+      <nav class="site-nav">
+        <a href="{{ get_url(path='posts') }}">記事</a>
+        <a href="{{ get_url(path='demos') }}">デモ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="container">
+      {% block content %}{% endblock content %}
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>&copy; 2026 {{ config.extra.author }} — Built with <a href="https://www.getzola.org/">Zola</a></p>
+    </div>
+  </footer>
+</body>
+</html>

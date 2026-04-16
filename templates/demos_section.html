@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}{{ section.title }} | {{ config.title }}{% endblock title %}
+{% block description %}{{ section.description }}{% endblock description %}
+
+{% block extra_head %}
+<style>
+  /* ---- デモ一覧グリッド ---- */
+  .demo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-top: 1.75rem;
+  }
+
+  .demo-card {
+    display: block;
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #30363d;
+    background: #0d1117;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    outline-offset: 3px;
+  }
+  .demo-card:hover {
+    border-color: #58a6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    text-decoration: none;
+  }
+  .demo-card:focus-visible {
+    outline: 2px solid #58a6ff;
+  }
+
+  /* サムネイル／動画の重ね表示コンテナ */
+  .demo-card__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #161b22;
+  }
+  .demo-card__thumb,
+  .demo-card__preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .demo-card__thumb {
+    transition: opacity 0.25s ease;
+  }
+  .demo-card__preview {
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  /* サムネイルなし用フォールバック */
+  .demo-card__thumb-placeholder {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #1c2128 0%, #161b22 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #484f58;
+    font-size: 2.5rem;
+  }
+
+  /* ---- ツールチップ ---- */
+  .demo-tooltip {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    max-width: 240px;
+    background: #1c2128;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    padding: 0.625rem 0.875rem;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.1s;
+    display: none;
+  }
+  .demo-tooltip.is-visible {
+    display: block;
+    opacity: 1;
+  }
+  .demo-tooltip__title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #e6edf3;
+    margin: 0 0 0.3rem;
+    line-height: 1.35;
+  }
+  .demo-tooltip__desc {
+    font-size: 0.8125rem;
+    color: #8b949e;
+    margin: 0;
+    line-height: 1.5;
+  }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<h1>{{ section.title }}</h1>
+{% if section.content %}
+<div class="section-description">{{ section.content | safe }}</div>
+{% endif %}
+
+{% if section.pages %}
+<div class="demo-grid" id="demo-grid">
+  {% for page in section.pages %}
+  {% set thumb    = page.extra.thumbnail    | default(value="") %}
+  {% set alt_text = page.extra.thumbnail_alt | default(value=page.title ~ " のサムネイル") %}
+  {% set tip_desc = page.extra.description  | default(value=page.description | default(value="")) %}
+  {% set video    = page.extra.preview_video | default(value="") %}
+  <a
+    class="demo-card"
+    href="{{ page.permalink }}"
+    data-title="{{ page.title }}"
+    data-desc="{{ tip_desc }}"
+    aria-label="{{ page.title }}"
+  >
+    <div class="demo-card__media">
+      {% if thumb %}
+      <img
+        class="demo-card__thumb"
+        src="{{ thumb }}"
+        alt="{{ alt_text }}"
+        loading="lazy"
+        decoding="async"
+        width="400"
+        height="300"
+      >
+      {% else %}
+      <div class="demo-card__thumb-placeholder" aria-hidden="true">▶</div>
+      {% endif %}
+
+      {% if video %}
+      <video
+        class="demo-card__preview"
+        src="{{ video | safe }}"
+        preload="none"
+        muted
+        loop
+        playsinline
+        tabindex="-1"
+        aria-hidden="true"
+      ></video>
+      {% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+<!-- ツールチップ（JS で制御） -->
+<div class="demo-tooltip" id="demo-tooltip" role="tooltip" aria-hidden="true">
+  <p class="demo-tooltip__title" id="demo-tooltip-title"></p>
+  <p class="demo-tooltip__desc"  id="demo-tooltip-desc"></p>
+</div>
+
+<script>
+(function () {
+  const OFFSET = 18; // カーソルからのオフセット (px)
+
+  const tooltip   = document.getElementById('demo-tooltip');
+  const tipTitle  = document.getElementById('demo-tooltip-title');
+  const tipDesc   = document.getElementById('demo-tooltip-desc');
+  const cards     = document.querySelectorAll('#demo-grid .demo-card');
+
+  function showTooltip(card) {
+    tipTitle.textContent = card.dataset.title || '';
+    tipDesc.textContent  = card.dataset.desc  || '';
+    // descが空なら行ごと非表示
+    tipDesc.style.display = tipDesc.textContent ? '' : 'none';
+    tooltip.classList.add('is-visible');
+    tooltip.removeAttribute('aria-hidden');
+  }
+
+  function hideTooltip() {
+    tooltip.classList.remove('is-visible');
+    tooltip.setAttribute('aria-hidden', 'true');
+  }
+
+  function moveTooltip(clientX, clientY) {
+    // まずデフォルト位置（カーソル右下）に仮置きして寸法を取得
+    tooltip.style.left = '0px';
+    tooltip.style.top  = '0px';
+    const tw = tooltip.offsetWidth;
+    const th = tooltip.offsetHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const MARGIN = 8;
+
+    let x = clientX + OFFSET;
+    let y = clientY + OFFSET;
+
+    // 右端を超える場合は左側に出す
+    if (x + tw + MARGIN > vw) x = clientX - tw - OFFSET;
+    // 下端を超える場合は上側に出す
+    if (y + th + MARGIN > vh) y = clientY - th - OFFSET;
+    // 左端・上端のクランプ
+    x = Math.max(MARGIN, x);
+    y = Math.max(MARGIN, y);
+
+    tooltip.style.left = x + 'px';
+    tooltip.style.top  = y + 'px';
+  }
+
+  cards.forEach(function (card) {
+    const video = card.querySelector('.demo-card__preview');
+    const thumb = card.querySelector('.demo-card__thumb');
+
+    card.addEventListener('mouseenter', function (e) {
+      showTooltip(card);
+      moveTooltip(e.clientX, e.clientY);
+      if (video) {
+        video.play().catch(function () {}); // autoplay制限は無視
+        video.style.opacity = '1';
+        if (thumb) thumb.style.opacity = '0';
+      }
+    });
+    card.addEventListener('mousemove', function (e) {
+      moveTooltip(e.clientX, e.clientY);
+    });
+    card.addEventListener('mouseleave', function () {
+      hideTooltip();
+      if (video) {
+        video.style.opacity = '0';
+        if (thumb) thumb.style.opacity = '1';
+        // フェードアウト完了後に停止・巻き戻し
+        video.addEventListener('transitionend', function onEnd() {
+          video.removeEventListener('transitionend', onEnd);
+          if (video.style.opacity === '0') {
+            video.pause();
+            video.currentTime = 0;
+          }
+        });
+      }
+    });
+    // タッチ・キーボードではツールチップ不要
+    card.addEventListener('focus', hideTooltip);
+  });
+})();
+</script>
+
+{% else %}
+<p class="empty-message">デモは準備中です。</p>
+{% endif %}
+{% endblock content %}

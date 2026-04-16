@@ -1,0 +1,129 @@
+{#
+  bevy_demo shortcode — BevyのWASMデモを埋め込む
+
+  使い方:
+    {{ bevy_demo(name="various_shapes") }}
+    {{ bevy_demo(name="various_shapes", width="800", height="600") }}
+
+  パラメータ:
+    name   – デモ名（必須）。static/demos/<name>/<name>.js に対応
+    width  – canvas の幅 px（省略時: "800"）
+    height – canvas の高さ px（省略時: "600"）
+
+  仕組み:
+    Bevyは自前でcanvas要素を生成してdocument.bodyに追加する。
+    MutationObserverでそのcanvasを検知し、wrapperの中に移動させる。
+#}
+{% set w = width | default(value="800") %}
+{% set h = height | default(value="600") %}
+{% set js_path = "/demos/" ~ name ~ "/" ~ name ~ ".js" %}
+
+<div class="bevy-demo" id="demo-{{ name }}" style="min-height: {{ h }}px;">
+  <div class="bevy-demo__spinner" id="spinner-{{ name }}" aria-live="polite">
+    <div class="bevy-demo__spinner-icon" aria-hidden="true"></div>
+    <p>デモを読み込んでいます…</p>
+  </div>
+  <div class="bevy-demo__error" id="error-{{ name }}" style="display:none;" role="alert">
+    <p>⚠ デモの読み込みに失敗しました。コンソールを確認してください。</p>
+    <p><small>COOP/COEPヘッダーが設定されたサーバーで開いているか確認してください。</small></p>
+  </div>
+</div>
+
+<style>
+.bevy-demo {
+  position: relative;
+  margin: 1.5rem 0;
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bevy-demo canvas {
+  display: block;
+  max-width: 100%;
+}
+.bevy-demo__spinner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  color: #8b949e;
+  font-size: 0.9375rem;
+  padding: 2.5rem;
+}
+.bevy-demo__spinner p {
+  margin: 0;
+}
+.bevy-demo__spinner-icon {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #30363d;
+  border-top-color: #58a6ff;
+  border-radius: 50%;
+  animation: bevy-spin 0.8s linear infinite;
+}
+@keyframes bevy-spin {
+  to { transform: rotate(360deg); }
+}
+.bevy-demo__error {
+  padding: 1.5rem 2rem;
+  color: #f85149;
+  font-size: 0.9375rem;
+  text-align: center;
+}
+.bevy-demo__error p {
+  margin: 0.25rem 0;
+}
+</style>
+
+<script type="module">
+(async () => {
+  const wrapper = document.getElementById('demo-{{ name }}');
+  const spinner = document.getElementById('spinner-{{ name }}');
+  const errorEl = document.getElementById('error-{{ name }}');
+
+  // init() より前にObserverを登録し、Bevyがbodyに追加するcanvasを捕捉する
+  const canvasPromise = new Promise((resolve) => {
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node instanceof HTMLCanvasElement) {
+            observer.disconnect();
+            resolve(node);
+            return;
+          }
+        }
+      }
+    });
+    // subtree: true でbevy内部がbody直下以外に挿入した場合も拾う
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+
+  try {
+    const { default: init } = await import('{{ js_path | safe }}');
+    await init();
+
+    // init()後にcanvasが追加されるケースに備えてタイムアウト付きで待機
+    const canvas = await Promise.race([
+      canvasPromise,
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('canvas creation timed out')), 10000)
+      ),
+    ]);
+
+    // bodyに追加されたcanvasをwrapperの中に移動
+    wrapper.appendChild(canvas);
+    spinner.style.display = 'none';
+    wrapper.style.minHeight = '';
+    canvas.focus();
+  } catch (err) {
+    console.error('[bevy-demo] {{ name }}:', err);
+    spinner.style.display = 'none';
+    errorEl.style.display = 'block';
+  }
+})();
+</script>

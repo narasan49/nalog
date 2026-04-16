@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(zola --version)",
+      "Bash(zola build:*)"
+    ]
+  }
+}

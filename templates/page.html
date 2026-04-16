@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock title %}
+{% block description %}{% if page.description %}{{ page.description }}{% else %}{{ config.description }}{% endif %}{% endblock description %}
+
+{% block extra_head %}
+<style>
+  .page-layout {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  /* サイドバー */
+  .page-sidebar {
+    position: sticky;
+    top: 5rem; /* site-header の高さ分オフセット */
+  }
+  .sidebar-section {
+    font-size: 0.8125rem;
+  }
+  .sidebar-section__heading {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin: 0 0 0.75rem;
+  }
+  .sidebar-tags {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .sidebar-tags__link {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--color-tag-bg);
+    color: var(--color-tag-text);
+    text-decoration: none;
+    transition: background 0.12s;
+  }
+  .sidebar-tags__link:hover {
+    background: #b6e3ff;
+    text-decoration: none;
+  }
+  /* 現在の記事のタグをハイライト */
+  .sidebar-tags__link[aria-current="true"] {
+    background: var(--color-accent);
+    color: #ffffff;
+  }
+  .sidebar-tags__link[aria-current="true"]:hover {
+    background: var(--color-link-hover);
+  }
+
+  /* モバイル: サイドバーを本文の下へ */
+  @media (max-width: 700px) {
+    .page-layout {
+      grid-template-columns: 1fr;
+    }
+    .page-sidebar {
+      position: static;
+      border-top: 1px solid var(--color-border);
+      padding-top: 1.5rem;
+    }
+    .sidebar-tags {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+  }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+{% set all_tags = get_taxonomy(kind="tags") %}
+{% set current_tags = page.taxonomies.tags | default(value=[]) %}
+
+<div class="page-layout">
+  <article class="post">
+    <header class="post-header">
+      <h1 class="post-title">{{ page.title }}</h1>
+      <div class="post-meta">
+        <time datetime="{{ page.date }}">{{ page.date | date(format="%Y年%m月%d日") }}</time>
+        {% if current_tags %}
+        <div class="post-tags">
+          {% for tag in current_tags %}
+          <a href="{{ get_taxonomy_url(kind='tags', name=tag) }}" class="tag">{{ tag }}</a>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% if page.description %}
+      <p class="post-description">{{ page.description }}</p>
+      {% endif %}
+    </header>
+
+    <div class="post-content">
+      {{ page.content | safe }}
+    </div>
+
+    <footer class="post-footer">
+      <a href="{{ get_url(path='posts') }}" class="back-link">← 記事一覧へ</a>
+    </footer>
+  </article>
+
+  <aside class="page-sidebar" aria-label="サイドバー">
+    {% if all_tags.items %}
+    <section class="sidebar-section">
+      <h2 class="sidebar-section__heading">タグ</h2>
+      <ul class="sidebar-tags">
+        {% for term in all_tags.items %}
+        {% set is_current = term.name in current_tags %}
+        <li>
+          <a
+            class="sidebar-tags__link"
+            href="{{ term.permalink }}"
+            {% if is_current %}aria-current="true"{% endif %}
+          >{{ term.name }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+  </aside>
+</div>
+{% endblock content %}

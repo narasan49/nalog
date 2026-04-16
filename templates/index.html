@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <h1>{{ config.title }}</h1>
+  <p class="hero-description">{{ config.description }}</p>
+</section>
+
+<section class="recent-posts">
+  <h2>最近の記事</h2>
+  {% set posts = get_section(path="posts/_index.md") %}
+  {% if posts.pages %}
+  <ul class="post-list">
+    {% for page in posts.pages | slice(end=5) %}
+    <li class="post-item">
+      <span class="post-date">{{ page.date | date(format="%Y-%m-%d") }}</span>
+      <a href="{{ page.permalink }}" class="post-title">{{ page.title }}</a>
+      {% if page.description %}
+      <p class="post-description">{{ page.description }}</p>
+      {% endif %}
+      {% if page.taxonomies.tags %}
+      <div class="post-tags">
+        {% for tag in page.taxonomies.tags %}
+        <a href="{{ get_taxonomy_url(kind='tags', name=tag) }}" class="tag">{{ tag }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  <a href="{{ get_url(path='posts') }}" class="read-more">すべての記事を見る →</a>
+  {% else %}
+  <p>まだ記事がありません。</p>
+  {% endif %}
+</section>
+{% endblock content %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{#
+  demo_page.html — Bevyデモ埋め込み専用ページテンプレート
+
+  ⚠ SharedArrayBuffer（Bevyのマルチスレッドに必要）を使用するため、
+    以下のHTTPレスポンスヘッダーが必要:
+
+      Cross-Origin-Opener-Policy: same-origin
+      Cross-Origin-Embedder-Policy: require-corp
+
+    Cloudflare Pages では static/_headers で全ページに設定済み。
+    ローカル確認は `zola serve` ではなく以下のコマンドを使うこと:
+
+      zola build
+      npx serve -p 8080 public/ \
+        --header "Cross-Origin-Opener-Policy: same-origin" \
+        --header "Cross-Origin-Embedder-Policy: require-corp"
+#}
+
+{% block title %}{{ page.title }} | {{ config.title }}{% endblock title %}
+{% block description %}{% if page.description %}{{ page.description }}{% else %}{{ config.description }}{% endif %}{% endblock description %}
+
+{% block extra_head %}
+<style>
+  /* デモページは canvas を広く表示するためコンテナ幅を拡大 */
+  .main-content > .container { max-width: 900px; }
+</style>
+{% endblock extra_head %}
+
+{% block content %}
+<article class="post">
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title }}</h1>
+    <div class="post-meta">
+      <time datetime="{{ page.date }}">{{ page.date | date(format="%Y年%m月%d日") }}</time>
+      {% if page.taxonomies.tags %}
+      <div class="post-tags">
+        {% for tag in page.taxonomies.tags %}
+        <a href="{{ get_taxonomy_url(kind='tags', name=tag) }}" class="tag">{{ tag }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {% if page.description %}
+    <p class="post-description">{{ page.description }}</p>
+    {% endif %}
+  </header>
+
+  <div class="post-content">
+    {{ page.content | safe }}
+  </div>
+
+  <footer class="post-footer">
+    <a href="{{ get_url(path='demos') }}" class="back-link">← デモ一覧へ</a>
+  </footer>
+</article>
+{% endblock content %}

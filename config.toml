@@ -1,0 +1,19 @@
+base_url = "https://example.com"
+title = "nalog"
+description = "物理シミュレーション・ゲーム開発などの技術メモ"
+default_language = "ja"
+compile_sass = false
+minify_html = false
+generate_feeds = true
+feed_filenames = ["atom.xml"]
+
+[markdown.highlighting]
+theme = "ayu-dark"
+
+[extra]
+author = "nalog"
+
+[[taxonomies]]
+name = "tags"
+feed = true
+paginate_by = 10
