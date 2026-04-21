@@ -20,4 +20,4 @@ tags = ["bevy", "wasm", "gamedev"]
 
 [Bevy](https://bevyengine.org/) エンジンで開発した、グリッドベースの2次元流体シミュレーション[bevy_eulerian_fluid](https://github.com/narasan49/bevy_eulerian_fluid)の[flow_around_circle](https://github.com/narasan49/bevy_eulerian_fluid/blob/main/examples/flow_around_circle.rs) exampleのWebAssemblyビルドです。
 
-勢いのある水面の動きや剛体と流体の相互作用を楽しむことができます。
+渦度($\nabla \times \boldsymbol{u}$)を描画し、障害物周りの流れの下流にできるカルマン渦を可視化しています。
