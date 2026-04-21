@@ -4,6 +4,7 @@
 {% block description %}{% if page.description %}{{ page.description }}{% else %}{{ config.description }}{% endif %}{% endblock description %}
 
 {% block extra_head %}
+{#
 <style>
   .page-layout {
     display: grid;
@@ -74,11 +75,12 @@
     }
   }
 </style>
+#}
 {% endblock extra_head %}
 
 {% block content %}
-{% set all_tags = get_taxonomy(kind="tags") %}
-{% set current_tags = page.taxonomies.tags | default(value=[]) %}
+{# {% set all_tags = get_taxonomy(kind="tags") %} #}
+{# {% set current_tags = page.taxonomies.tags | default(value=[]) %} #}
 
 <div class="page-layout">
   <article class="post">
@@ -86,6 +88,7 @@
       <h1 class="post-title">{{ page.title }}</h1>
       <div class="post-meta">
         <time datetime="{{ page.date }}">{{ page.date | date(format="%Y年%m月%d日") }}</time>
+        {#
         {% if current_tags %}
         <div class="post-tags">
           {% for tag in current_tags %}
@@ -93,6 +96,7 @@
           {% endfor %}
         </div>
         {% endif %}
+        #}
       </div>
       {% if page.description %}
       <p class="post-description">{{ page.description }}</p>
@@ -104,10 +108,11 @@
     </div>
 
     <footer class="post-footer">
-      <a href="{{ get_url(path='posts') }}" class="back-link">← 記事一覧へ</a>
+      <a href="{{ get_url(path='posts') }}" class="back-link">← Blog</a>
     </footer>
   </article>
 
+  {#
   <aside class="page-sidebar" aria-label="サイドバー">
     {% if all_tags.items %}
     <section class="sidebar-section">
@@ -127,5 +132,6 @@
     </section>
     {% endif %}
   </aside>
+  #}
 </div>
 {% endblock content %}

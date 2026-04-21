@@ -205,6 +205,7 @@ section h1 {
   line-height: 1.5;
 }
 
+/*
 .post-tags {
   grid-column: 2;
   display: flex;
@@ -227,6 +228,7 @@ section h1 {
   text-decoration: none;
   background: #b6e3ff;
 }
+*/
 
 .read-more {
   display: inline-block;
@@ -418,6 +420,66 @@ section h1 {
 .section-description {
   color: var(--color-text-muted);
   margin-bottom: 2rem;
+}
+
+/* ============================================================
+   About page
+   ============================================================ */
+.about-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.about-profile {
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.about-name {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 1rem;
+}
+
+.about-bio {
+  font-size: 1.0625rem;
+  color: var(--color-text-muted);
+  line-height: 1.8;
+}
+
+.social-list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.social-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--color-text);
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.social-link:hover {
+  color: var(--color-text);
+  text-decoration: none;
+  background-color: var(--color-bg-subtle);
+  border-color: var(--color-text-muted);
+}
+
+.social-icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-muted);
 }
 
 /* ============================================================

@@ -18,6 +18,7 @@
       {% if page.description %}
       <p class="post-description">{{ page.description }}</p>
       {% endif %}
+      {#
       {% if page.taxonomies.tags %}
       <div class="post-tags">
         {% for tag in page.taxonomies.tags %}
@@ -25,6 +26,7 @@
         {% endfor %}
       </div>
       {% endif %}
+      #}
     </li>
     {% endfor %}
   </ul>
