@@ -8,7 +8,7 @@
 
 <section class="recent-posts">
   <h2>最近の記事</h2>
-  {% set posts = get_section(path="posts/_index.md") %}
+  {% set posts = get_section(path="blog/_index.md") %}
   {% if posts.pages %}
   <ul class="post-list">
     {% for page in posts.pages | slice(end=5) %}
@@ -30,7 +30,7 @@
     </li>
     {% endfor %}
   </ul>
-  <a href="{{ get_url(path='posts') }}" class="read-more">すべての記事を見る →</a>
+  <a href="{{ get_url(path='blog') }}" class="read-more">すべての記事を見る →</a>
   {% else %}
   <p>まだ記事がありません。</p>
   {% endif %}

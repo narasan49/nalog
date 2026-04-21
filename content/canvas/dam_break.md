@@ -3,12 +3,12 @@ title = "Dam break"
 date = 2026-04-21
 description = ""
 template = "demo_page.html"
-path = "demos/dam_break"
+path = "canvas/dam_break"
 [extra]
-thumbnail = "/demos/dam_break/thumbnail.png"
+thumbnail = "/canvas/dam_break/thumbnail.png"
 thumbnail_alt = "Dam break"
 description = "自由表面・剛体との相互作用のある2D流体シミュレーション"
-preview_video = "/demos/dam_break/preview.webm"
+preview_video = "/canvas/dam_break/preview.webm"
 
 [taxonomies]
 tags = ["bevy", "wasm", "gamedev"]

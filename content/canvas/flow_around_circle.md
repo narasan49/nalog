@@ -3,12 +3,12 @@ title = "Flow around circle"
 date = 2026-04-21
 description = ""
 template = "demo_page.html"
-path = "demos/flow_around_circle"
+path = "canvas/flow_around_circle"
 [extra]
-thumbnail = "/demos/flow_around_circle/thumbnail.png"
+thumbnail = "/canvas/flow_around_circle/thumbnail.png"
 thumbnail_alt = "Flow around circle"
 description = "円柱周りの流れのシミュレーション"
-preview_video = "/demos/flow_around_circle/preview.webm"
+preview_video = "/canvas/flow_around_circle/preview.webm"
 
 [taxonomies]
 tags = ["bevy", "wasm", "gamedev"]

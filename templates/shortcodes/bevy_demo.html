@@ -6,7 +6,7 @@
     {{ bevy_demo(name="various_shapes", width="800", height="600") }}
 
   パラメータ:
-    name   – デモ名（必須）。static/demos/<name>/<name>.js に対応
+    name   – デモ名（必須）。static/canvas/<name>/<name>.js に対応
     width  – canvas の幅 px（省略時: "800"）
     height – canvas の高さ px（省略時: "600"）
 
@@ -16,7 +16,7 @@
 #}
 {% set w = width | default(value="800") %}
 {% set h = height | default(value="600") %}
-{% set js_path = "/demos/" ~ name ~ "/" ~ name ~ ".js" %}
+{% set js_path = "/canvas/" ~ name ~ "/" ~ name ~ ".js" %}
 
 <div class="bevy-demo" id="demo-{{ name }}" style="min-height: {{ h }}px;">
   <div class="bevy-demo__spinner" id="spinner-{{ name }}" aria-live="polite">
