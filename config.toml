@@ -1,4 +1,4 @@
-base_url = "https://example.com"
+base_url = "https://nalog.dev"
 title = "nalog"
 description = "物理シミュレーション・ゲーム開発などの技術メモ"
 default_language = "ja"
