@@ -112,20 +112,35 @@ EOF
 
 ### 4. 動作確認
 
-`zola serve` は COOP/COEP ヘッダーを返さないため、WASMの確認は以下の手順で行います。
+`zola serve` は COOP/COEP ヘッダーを返さないため、WASMの確認は `zola build` + `npx serve` で行います。
 
-```bash
-cd nalog
+**Windows（PowerShell）:**
 
-# ビルド（--base-url を指定しないと CSS・リンクが example.com に向く）
+```powershell
+# 1. wasm/ のファイルを static/demos/ にコピー
+.\scripts\copy-wasm-local.ps1
+
+# 2. ビルド
 zola build --base-url http://localhost:8080
 
-# ローカルサーバーで起動（static/serve.json が COOP/COEP ヘッダーを自動設定）
-npx serve public -p 8080
+# 3. サーブ
+npx serve -p 8080 public/ `
+  --header "Cross-Origin-Opener-Policy: same-origin" `
+  --header "Cross-Origin-Embedder-Policy: require-corp"
 ```
 
-ブラウザで http://localhost:8080/canvas/various-shapes/ を開き、
+**Linux / Mac:**
+
+```bash
+# 1〜3 をまとめて実行
+make serve
+```
+
+ブラウザで http://localhost:8080/canvas/dam-break/ などを開き、
 Bevy の canvas が表示されることを確認します。
+
+> `static/demos/` は `.gitignore` で除外されているためリポジトリには含まれません。
+> CI（`deploy.yml`）ではWASMはR2から配信されるため、このコピー手順は不要です。
 
 ---
 
@@ -181,6 +196,54 @@ main ブランチに push すると GitHub Actions が起動し、Cloudflare Pag
 
 ---
 
+## WASMアセットのR2アップロード
+
+WASMビルド成果物はファイルサイズが大きいため、Cloudflare Pages には含めず
+Cloudflare R2 から配信します。`wasm/` 以下に変更があった push 時に
+`.github/workflows/upload-wasm.yml` が自動実行されます。
+
+### デモの追加手順
+
+1. `wasm/<demo_name>/` にWASMビルド成果物とassetsを配置する
+
+   ```
+   wasm/
+   └── various_shapes/
+       ├── various_shapes.js
+       ├── various_shapes_bg.wasm
+       └── assets/
+   ```
+
+2. main ブランチに push すると、変更があったデモのみ R2 に自動アップロードされる
+
+3. アップロード先URL: `https://assets.nalog.dev/<demo_name>/`
+
+### 初回セットアップ（R2）
+
+#### 1. R2 バケットの作成
+
+Cloudflare ダッシュボード → **R2 Object Storage** → **Create bucket** でバケットを作成します。
+
+#### 2. R2 API トークンの発行
+
+**R2 Object Storage** → **Manage R2 API Tokens** → **Create API Token** で以下の権限を設定:
+
+- **Permissions**: `Object Read & Write`
+- **Specify bucket**: 作成したバケットを指定
+
+発行された **Access Key ID** と **Secret Access Key** を控えておきます。
+
+#### 3. GitHub Secrets の追加
+
+| Secret 名 | 値 |
+|-----------|-----|
+| `R2_ACCESS_KEY_ID` | R2 API トークンのAccess Key ID |
+| `R2_SECRET_ACCESS_KEY` | R2 API トークンのSecret Access Key |
+| `R2_BUCKET_NAME` | 作成したバケット名 |
+| `R2_ACCOUNT_ID` | Cloudflare Account ID（`CLOUDFLARE_ACCOUNT_ID` と同じ値） |
+
+---
+
 ## ディレクトリ構成
 
 ```
@@ -204,12 +267,12 @@ nalog/
 ├── static/
 │   ├── _headers        # Cloudflare Pages COOP/COEP設定
 │   ├── serve.json      # npx serve 用ヘッダー設定
-│   ├── css/
-│   │   └── style.css
-│   └── canvas/
-│       └── <demo_name>/
-│           ├── <demo_name>.js
-│           ├── <demo_name>_bg.wasm
-│           └── assets/         # デモが使用するアセット（シェーダー等）
+│   └── css/
+│       └── style.css
+├── wasm/               # WASMビルド成果物（R2にアップロード）
+│   └── <demo_name>/
+│       ├── <demo_name>.js
+│       ├── <demo_name>_bg.wasm
+│       └── assets/     # デモが使用するアセット（シェーダー等）
 └── .gitignore
 ```

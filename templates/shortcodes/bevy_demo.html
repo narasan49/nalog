@@ -6,17 +6,26 @@
     {{ bevy_demo(name="various_shapes", width="800", height="600") }}
 
   パラメータ:
-    name   – デモ名（必須）。static/canvas/<name>/<name>.js に対応
+    name   – デモ名（必須）。R2の<name>/<name>.js に対応
     width  – canvas の幅 px（省略時: "800"）
     height – canvas の高さ px（省略時: "600"）
 
   仕組み:
     Bevyは自前でcanvas要素を生成してdocument.bodyに追加する。
     MutationObserverでそのcanvasを検知し、wrapperの中に移動させる。
+
+  注意:
+    r2_base_url が設定されている場合は R2 から配信する。
+    ローカル確認は scripts/copy-wasm-local.ps1（または .sh）を実行後、
+    zola build して npx serve で行うこと。
 #}
 {% set w = width | default(value="800") %}
 {% set h = height | default(value="600") %}
+{% if config.extra.r2_base_url and "localhost" not in config.base_url %}
+{% set js_path = config.extra.r2_base_url ~ "/" ~ name ~ "/" ~ name ~ ".js" %}
+{% else %}
 {% set js_path = "/canvas/" ~ name ~ "/" ~ name ~ ".js" %}
+{% endif %}
 
 <div class="bevy-demo" id="demo-{{ name }}" style="min-height: {{ h }}px;">
   <div class="bevy-demo__spinner" id="spinner-{{ name }}" aria-live="polite">
