@@ -23,6 +23,23 @@
     <div class="bevy-demo__spinner-icon" aria-hidden="true"></div>
     <p>デモを読み込んでいます…</p>
   </div>
+  <button
+    class="bevy-demo__fs-btn"
+    id="fs-btn-{{ name }}"
+    aria-label="フルスクリーン"
+    style="display:none;"
+  >
+    <!-- 拡大アイコン（通常時） -->
+    <svg class="fs-icon-expand" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+      <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+    </svg>
+    <!-- 縮小アイコン（フルスクリーン時） -->
+    <svg class="fs-icon-shrink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none;">
+      <polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/>
+      <line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>
+    </svg>
+  </button>
   <div class="bevy-demo__error" id="error-{{ name }}" style="display:none;" role="alert">
     <p>⚠ デモの読み込みに失敗しました。コンソールを確認してください。</p>
     <p><small>COOP/COEPヘッダーが設定されたサーバーで開いているか確認してください。</small></p>
@@ -68,6 +85,33 @@
 }
 @keyframes bevy-spin {
   to { transform: rotate(360deg); }
+}
+.bevy-demo__fs-btn {
+  position: absolute;
+  bottom: 0.625rem;
+  right: 0.625rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  background: rgba(13, 17, 23, 0.6);
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  color: #8b949e;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.15s, color 0.15s;
+}
+.bevy-demo__fs-btn:hover {
+  opacity: 1;
+  color: #e6edf3;
+}
+.bevy-demo__fs-btn svg {
+  width: 1rem;
+  height: 1rem;
 }
 .bevy-demo__error {
   padding: 1.5rem 2rem;
@@ -120,6 +164,25 @@
     spinner.style.display = 'none';
     wrapper.style.minHeight = '';
     canvas.focus();
+
+    // フルスクリーンボタンを追加
+    const fsBtn = document.getElementById('fs-btn-{{ name }}');
+    fsBtn.style.display = 'flex';
+
+    fsBtn.addEventListener('click', () => {
+      if (!document.fullscreenElement) {
+        wrapper.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    });
+
+    document.addEventListener('fullscreenchange', () => {
+      const isFs = document.fullscreenElement === wrapper;
+      fsBtn.querySelector('.fs-icon-expand').style.display = isFs ? 'none' : 'block';
+      fsBtn.querySelector('.fs-icon-shrink').style.display = isFs ? 'block' : 'none';
+      fsBtn.setAttribute('aria-label', isFs ? '通常表示に戻す' : 'フルスクリーン');
+    });
   } catch (err) {
     console.error('[bevy-demo] {{ name }}:', err);
     spinner.style.display = 'none';
