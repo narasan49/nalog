@@ -9,9 +9,14 @@
 <div class="section-description">{{ section.content | safe }}</div>
 {% endif %}
 
-{% if section.pages %}
+{% if paginator %}
+  {% set page_list = paginator.pages %}
+{% else %}
+  {% set page_list = section.pages %}
+{% endif %}
+{% if page_list %}
 <ul class="post-list">
-  {% for page in section.pages %}
+  {% for page in page_list %}
   <li class="post-item">
     <span class="post-date">{{ page.date | date(format="%Y-%m-%d") }}</span>
     <a href="{{ page.permalink }}" class="post-title">{{ page.title }}</a>
