@@ -54,15 +54,15 @@ out/
 ```bash
 # デモ名は JS/WASM のファイル名プレフィックスに合わせる
 DEMO_NAME=various_shapes
-mkdir -p nalog/static/demos/$DEMO_NAME
+mkdir -p nalog/static/canvas/$DEMO_NAME
 
-cp out/${DEMO_NAME}.js       nalog/static/demos/$DEMO_NAME/
-cp out/${DEMO_NAME}_bg.wasm  nalog/static/demos/$DEMO_NAME/
+cp out/${DEMO_NAME}.js       nalog/static/canvas/$DEMO_NAME/
+cp out/${DEMO_NAME}_bg.wasm  nalog/static/canvas/$DEMO_NAME/
 ```
 
 ディレクトリ構成:
 ```
-static/demos/
+static/canvas/
 └── various_shapes/
     ├── various_shapes.js
     └── various_shapes_bg.wasm
@@ -70,10 +70,10 @@ static/demos/
 
 ### 3. デモ記事を作成
 
-`content/demos/<slug>.md` を作成します。
+`content/canvas/<slug>.md` を作成します。
 
 ```bash
-cat > nalog/content/demos/various-shapes.md << 'EOF'
+cat > nalog/content/canvas/various-shapes.md << 'EOF'
 +++
 title = "Various Shapes デモ"
 date = 2026-04-05
@@ -93,7 +93,7 @@ EOF
 
 | パラメータ | 必須 | デフォルト | 説明 |
 |-----------|------|----------|------|
-| `name`    | ✓    | —        | デモ名。`static/demos/<name>/<name>.js` に対応 |
+| `name`    | ✓    | —        | デモ名。`static/canvas/<name>/<name>.js` に対応 |
 | `width`   |      | `"800"`  | canvas の幅 (px) |
 | `height`  |      | `"600"`  | canvas の高さ (px) |
 
@@ -124,20 +124,60 @@ zola build --base-url http://localhost:8080
 npx serve public -p 8080
 ```
 
-ブラウザで http://localhost:8080/demos/various-shapes/ を開き、
+ブラウザで http://localhost:8080/canvas/various-shapes/ を開き、
 Bevy の canvas が表示されることを確認します。
 
 ---
 
-## デプロイ（Cloudflare Pages）
+## デプロイ（Cloudflare Pages + GitHub Actions）
 
-1. GitHub にリポジトリを作成してプッシュ
-2. Cloudflare Pages で新規プロジェクトを作成
-3. ビルド設定:
-   - **Framework preset**: Zola
-   - **Build command**: `zola build`
-   - **Build output directory**: `public`
-4. `static/_headers` により COOP/COEP ヘッダーが自動で適用されます
+main ブランチへの push で `.github/workflows/deploy.yml` が自動実行され、
+Cloudflare Pages にデプロイされます。
+
+### 初回セットアップ
+
+#### 1. Cloudflare Pages プロジェクトの作成
+
+Cloudflare ダッシュボード（[dash.cloudflare.com](https://dash.cloudflare.com)）で以下の手順を実行します。
+
+1. **Workers & Pages** → **Create** → **Pages** タブを選択
+2. **Direct Upload** を選択（Git 連携は使わない）
+3. プロジェクト名に `nalog` を入力して **Create project** をクリック
+4. ファイルのアップロードは不要（スキップ）
+
+> Direct Upload 方式で作成することで、GitHub Actions 側からのデプロイのみを受け付けます。
+
+#### 2. Cloudflare API トークンの発行
+
+1. Cloudflare ダッシュボード右上のプロフィール → **My Profile** → **API Tokens**
+2. **Create Token** → **Custom token**
+3. 以下の権限を設定:
+   - **Permissions**: `Cloudflare Pages` — `Edit`
+4. **Continue to summary** → **Create Token**
+5. 表示されたトークンを控えておく（再表示不可）
+
+#### 3. Cloudflare Account ID の確認
+
+Cloudflare ダッシュボードで任意のドメインを選択すると、右サイドバーの
+**API** セクションに **Account ID** が表示されます。
+
+#### 4. GitHub Secrets の設定
+
+リポジトリの **Settings** → **Secrets and variables** → **Actions** → **New repository secret** で以下を登録:
+
+| Secret 名 | 値 |
+|-----------|-----|
+| `CLOUDFLARE_API_TOKEN` | 手順2で発行したAPIトークン |
+| `CLOUDFLARE_ACCOUNT_ID` | 手順3で確認したAccount ID |
+
+#### 5. デプロイの確認
+
+main ブランチに push すると GitHub Actions が起動し、Cloudflare Pages にデプロイされます。
+
+- GitHub: **Actions** タブでワークフローの成功を確認
+- Cloudflare: **Workers & Pages** → `nalog` プロジェクトでデプロイ履歴とURLを確認
+
+`static/_headers` により COOP/COEP ヘッダーが自動で適用されます（WASM の SharedArrayBuffer に必要）。
 
 ---
 
@@ -148,8 +188,8 @@ nalog/
 ├── config.toml
 ├── content/
 │   ├── _index.md
-│   ├── posts/          # 技術記事
-│   └── demos/          # デモページ
+│   ├── blog/           # 技術記事
+│   └── canvas/         # デモページ
 ├── templates/
 │   ├── base.html
 │   ├── index.html
@@ -166,7 +206,7 @@ nalog/
 │   ├── serve.json      # npx serve 用ヘッダー設定
 │   ├── css/
 │   │   └── style.css
-│   └── demos/
+│   └── canvas/
 │       └── <demo_name>/
 │           ├── <demo_name>.js
 │           ├── <demo_name>_bg.wasm
