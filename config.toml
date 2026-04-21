@@ -12,6 +12,7 @@ theme = "ayu-dark"
 
 [extra]
 author = "nalog"
+r2_base_url = "https://assets.nalog.dev"
 
 [[taxonomies]]
 name = "tags"

@@ -1,0 +1,72 @@
+name: Upload WASM to R2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'wasm/**'
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          fetch-depth: 2
+
+      - name: Detect changed demos
+        id: changed
+        run: |
+          # wasm/ 以下で変更されたファイルからデモ名（第2階層ディレクトリ）を抽出
+          DEMOS=$(git diff --name-only HEAD~1 HEAD -- wasm/ \
+            | grep -oP 'wasm/\K[^/]+' \
+            | sort -u \
+            | tr '\n' ' ')
+          echo "demos=${DEMOS}" >> "$GITHUB_OUTPUT"
+          echo "Detected changed demos: ${DEMOS}"
+
+      - name: Install rclone
+        run: |
+          curl -fsSL https://rclone.org/install.sh | sudo bash
+
+      - name: Configure rclone for Cloudflare R2
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf << EOF
+          [r2]
+          type = s3
+          provider = Cloudflare
+          access_key_id = ${R2_ACCESS_KEY_ID}
+          secret_access_key = ${R2_SECRET_ACCESS_KEY}
+          endpoint = https://${CLOUDFLARE_ACCOUNT_ID}.r2.cloudflarestorage.com
+          acl = private
+          EOF
+
+      - name: Upload changed demos to R2
+        env:
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+        run: |
+          DEMOS="${{ steps.changed.outputs.demos }}"
+          if [ -z "${DEMOS}" ]; then
+            echo "No demo changes detected, skipping upload."
+            exit 0
+          fi
+
+          for DEMO in ${DEMOS}; do
+            SRC="wasm/${DEMO}/"
+            DST="r2:${R2_BUCKET_NAME}/${DEMO}/"
+            if [ -d "${SRC}" ]; then
+              echo "Uploading ${SRC} -> ${DST}"
+              rclone copy "${SRC}" "${DST}" --progress
+            else
+              echo "Directory ${SRC} not found, skipping."
+            fi
+          done
