@@ -16,18 +16,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           lfs: true
-          fetch-depth: 2
-
-      - name: Detect changed demos
-        id: changed
-        run: |
-          # wasm/ 以下で変更されたファイルからデモ名（第2階層ディレクトリ）を抽出
-          DEMOS=$(git diff --name-only HEAD~1 HEAD -- wasm/ \
-            | grep -oP 'wasm/\K[^/]+' \
-            | sort -u \
-            | tr '\n' ' ')
-          echo "demos=${DEMOS}" >> "$GITHUB_OUTPUT"
-          echo "Detected changed demos: ${DEMOS}"
 
       - name: Install rclone
         run: |
@@ -50,23 +38,19 @@ jobs:
           acl = private
           EOF
 
-      - name: Upload changed demos to R2
+      - name: Upload all demos to R2
         env:
           R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
         run: |
-          DEMOS="${{ steps.changed.outputs.demos }}"
-          if [ -z "${DEMOS}" ]; then
-            echo "No demo changes detected, skipping upload."
-            exit 0
+          shopt -s nullglob
+          DEMOS=(wasm/*/)
+          if [ ${#DEMOS[@]} -eq 0 ]; then
+            echo "Warning: wasm/ にデモディレクトリが見つかりません。" >&2
+            exit 1
           fi
 
-          for DEMO in ${DEMOS}; do
-            SRC="wasm/${DEMO}/"
-            DST="r2:${R2_BUCKET_NAME}/${DEMO}/"
-            if [ -d "${SRC}" ]; then
-              echo "Uploading ${SRC} -> ${DST}"
-              rclone copy "${SRC}" "${DST}" --progress
-            else
-              echo "Directory ${SRC} not found, skipping."
-            fi
+          for demo in wasm/*/; do
+            demo_name=$(basename "$demo")
+            echo "Uploading ${demo} -> r2:${R2_BUCKET_NAME}/${demo_name}/"
+            rclone sync "$demo" "r2:${R2_BUCKET_NAME}/${demo_name}/" --progress
           done
