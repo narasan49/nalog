@@ -6,6 +6,53 @@
   <p class="hero-description">{{ config.description }}</p>
 </section>
 
+{% set canvas = get_section(path="canvas/_index.md") %}
+<section class="featured-demo" id="featured-demo-section" style="display:none;">
+  <h2>Featured Demo</h2>
+  <a class="featured-demo__card" id="featured-demo-card" href="#">
+    <video
+      class="featured-demo__video"
+      id="featured-demo-video"
+      autoplay muted loop playsinline
+      aria-hidden="true"
+    ></video>
+    <div class="featured-demo__overlay">
+      <p class="featured-demo__title" id="featured-demo-title"></p>
+      <p class="featured-demo__desc"  id="featured-demo-desc"></p>
+    </div>
+  </a>
+</section>
+
+<script>
+(function () {
+  const demos = [
+    {% for page in canvas.pages %}{% if page.extra.preview_video %}
+    {
+      title: {{ page.title | json_encode | safe }},
+      description: {{ page.extra.description | default(value="") | json_encode | safe }},
+      video: {{ page.extra.preview_video | json_encode | safe }},
+      url: {{ page.permalink | json_encode | safe }}
+    },
+    {% endif %}{% endfor %}
+  ];
+
+  if (!demos.length) return;
+
+  const demo    = demos[Math.floor(Math.random() * demos.length)];
+  const section = document.getElementById('featured-demo-section');
+  const card    = document.getElementById('featured-demo-card');
+  const video   = document.getElementById('featured-demo-video');
+  const title   = document.getElementById('featured-demo-title');
+  const desc    = document.getElementById('featured-demo-desc');
+
+  video.src           = demo.video;
+  title.textContent   = demo.title;
+  desc.textContent    = demo.description;
+  card.href           = demo.url;
+  section.style.display = '';
+})();
+</script>
+
 <section class="recent-posts">
   <h2>最近の記事</h2>
   {% set posts = get_section(path="blog/_index.md") %}
