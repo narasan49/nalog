@@ -196,6 +196,35 @@ main ブランチに push すると GitHub Actions が起動し、Cloudflare Pag
 
 ---
 
+## 動画ファイルのR2アップロード
+
+動画ファイルはファイルサイズが大きいため、Cloudflare Pages には含めず
+Cloudflare R2 から配信します。`videos/` 以下に変更があった push 時に
+`.github/workflows/upload-wasm.yml`（upload-assets）が自動実行されます。
+
+### 動画の追加手順
+
+1. `videos/` に動画ファイルを配置する
+
+   ```
+   videos/
+   └── demo.mp4
+   ```
+
+2. main ブランチに push すると R2 に自動アップロードされる
+
+3. 記事内での使い方:
+
+   ```
+   {{ video(src="/videos/ファイル名.mp4") }}
+   ```
+
+   `src` が `/` で始まる場合は `config.extra.r2_base_url` が自動付与される:
+   - `src="/videos/demo.mp4"` → `https://assets.nalog.dev/videos/demo.mp4`
+   - `src="https://..."` → そのまま使用
+
+---
+
 ## WASMアセットのR2アップロード
 
 WASMビルド成果物はファイルサイズが大きいため、Cloudflare Pages には含めず

@@ -1,0 +1,13 @@
+{% set src_parts = src | split(pat="/") %}
+{% if src_parts | first == "" %}
+  {% if config.extra.r2_base_url and "localhost" not in config.base_url %}
+    {% set video_src = config.extra.r2_base_url ~ src %}
+  {% else %}
+    {% set video_src = src %}
+  {% endif %}
+{% else %}
+  {% set video_src = src %}
+{% endif %}
+<video controls style="max-width:100%;display:block;margin:1.5rem 0;">
+  <source src="{{ video_src | safe }}" type="video/mp4">
+</video>

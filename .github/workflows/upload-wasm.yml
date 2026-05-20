@@ -1,4 +1,4 @@
-name: Upload WASM to R2
+name: Upload Assets to R2
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'wasm/**'
+      - 'videos/**'
   workflow_dispatch:
 
 jobs:
@@ -55,3 +56,14 @@ jobs:
             echo "Uploading ${demo} -> r2:${R2_BUCKET_NAME}/${demo_name}/"
             rclone sync "$demo" "r2:${R2_BUCKET_NAME}/${demo_name}/" --progress
           done
+
+      - name: Upload videos to R2
+        env:
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+        run: |
+          if find videos/ -name '*.mp4' -o -name '*.webm' | grep -q .; then
+            echo "Uploading videos/ -> r2:${R2_BUCKET_NAME}/videos/"
+            rclone sync videos/ "r2:${R2_BUCKET_NAME}/videos/" --exclude ".gitkeep" --progress
+          else
+            echo "No video files found in videos/, skipping."
+          fi
