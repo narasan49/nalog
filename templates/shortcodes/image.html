@@ -1,0 +1,17 @@
+{% set src_parts = src | split(pat="/") %}
+{% if src_parts | first == "" %}
+  {% if config.extra.r2_base_url and "localhost" not in config.base_url %}
+    {% set image_src = config.extra.r2_base_url ~ src %}
+  {% else %}
+    {% set image_src = src %}
+  {% endif %}
+{% else %}
+  {% set image_src = src %}
+{% endif %}
+{% set w = width | default(value="100") %}
+<figure style="width:{{ w }}%;margin-left:auto;margin-right:auto;">
+  <img src="{{ image_src | safe }}" alt="{{ caption | default(value="") }}" style="max-width:100%;display:block;">
+  {% if caption %}
+  <figcaption>{{ caption }}</figcaption>
+  {% endif %}
+</figure>

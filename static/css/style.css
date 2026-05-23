@@ -562,6 +562,20 @@ section h1 {
 }
 
 /* ============================================================
+   Figure / Image shortcode
+   ============================================================ */
+.post-content figure {
+  margin: 1.5rem 0;
+}
+
+.post-content figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ============================================================
    Responsive
    ============================================================ */
 @media (max-width: 600px) {
