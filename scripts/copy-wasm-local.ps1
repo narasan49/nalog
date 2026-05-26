@@ -1,9 +1,9 @@
-﻿# wasm/ 以下のデモをローカル確認用に static/canvas/ にコピーする
+﻿# wasm/ 以下のデモをローカル確認用に static/demo/ にコピーする
 # videos/ 以下の動画ファイルをローカル確認用に static/videos/ にコピーする
 
 $RepoRoot  = Split-Path -Parent $PSScriptRoot
 $WasmDir   = Join-Path $RepoRoot "wasm"
-$DestDir   = Join-Path $RepoRoot "static\canvas"
+$DestDir   = Join-Path $RepoRoot "static\demo"
 $VideoSrc  = Join-Path $RepoRoot "videos"
 $VideoDest = Join-Path $RepoRoot "static\videos"
 
@@ -18,7 +18,7 @@ foreach ($demo in $demos) {
     $src  = $demo.FullName
     $dest = Join-Path $DestDir $demo.Name
 
-    Write-Host "Copying $($demo.Name) -> static/canvas/$($demo.Name)"
+    Write-Host "Copying $($demo.Name) -> static/demo/$($demo.Name)"
     New-Item -ItemType Directory -Force -Path $dest | Out-Null
     Copy-Item -Path "$src\*" -Destination $dest -Recurse -Force
 }

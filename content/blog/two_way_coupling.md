@@ -8,7 +8,7 @@ tags = ["rust"]
 
 自由表面、剛体との相互作用のある、2次元の格子法流体シミュレーションをBevyエンジンを用いてGPUで開発しました。
 
-開発したシミュレーションを利用したデモが[こちらに](../../canvas)ありますので、ぜひご覧ください。ソースコードも公開しています: [https://github.com/narasan49/bevy_eulerian_fluid](https://github.com/narasan49/bevy_eulerian_fluid)
+開発したシミュレーションを利用したデモが[こちらに](../../demo)ありますので、ぜひご覧ください。ソースコードも公開しています: [https://github.com/narasan49/bevy_eulerian_fluid](https://github.com/narasan49/bevy_eulerian_fluid)
 
 ## 動機
 ゲームで用いられる流体表現には様々ありますが、ユーザーが触れて遊ぶことのできるものはあまりないなと思い、作ってみたくなりました。流体に触れた結果さらにほかの要素に影響を与えてほしいので剛体との相互作用を、流体として身近なものはやはり水なので水面(自由表面)を含むシミュレーションを開発しました。

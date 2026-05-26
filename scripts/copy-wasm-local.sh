@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# wasm/ 以下のデモをローカル確認用に static/canvas/ にコピーする
+# wasm/ 以下のデモをローカル確認用に static/demo/ にコピーする
 # videos/ 以下の動画ファイルをローカル確認用に static/videos/ にコピーする
 
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 WASM_DIR="${REPO_ROOT}/wasm"
-DEST_DIR="${REPO_ROOT}/static/canvas"
+DEST_DIR="${REPO_ROOT}/static/demo"
 VIDEO_SRC="${REPO_ROOT}/videos"
 VIDEO_DEST="${REPO_ROOT}/static/videos"
 
@@ -20,7 +20,7 @@ for demo_path in "${WASM_DIR}"/*/; do
     demo_name="$(basename "${demo_path}")"
     dest="${DEST_DIR}/${demo_name}"
 
-    echo "Copying ${demo_name} -> static/canvas/${demo_name}"
+    echo "Copying ${demo_name} -> static/demo/${demo_name}"
     mkdir -p "${dest}"
     cp -r "${demo_path}"* "${dest}/"
 done

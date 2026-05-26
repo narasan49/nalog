@@ -24,7 +24,7 @@
 {% if config.extra.r2_base_url and "localhost" not in config.base_url %}
 {% set js_path = config.extra.r2_base_url ~ "/" ~ name ~ "/" ~ name ~ ".js" %}
 {% else %}
-{% set js_path = "/canvas/" ~ name ~ "/" ~ name ~ ".js" %}
+{% set js_path = "/demo/" ~ name ~ "/" ~ name ~ ".js" %}
 {% endif %}
 
 <div class="bevy-demo" id="demo-{{ name }}" style="min-height: {{ h }}px;">

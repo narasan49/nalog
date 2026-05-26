@@ -1,5 +1,5 @@
 +++
-title = "Canvas"
+title = "Demo"
 description = "Wasmデモの一覧"
 sort_by = "date"
 template = "demos_section.html"

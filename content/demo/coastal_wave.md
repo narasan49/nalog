@@ -3,12 +3,12 @@ title = "Coastal wave"
 date = 2026-05-26
 description = ""
 template = "demo_page.html"
-path = "canvas/coastal_wave"
+path = "demo/coastal_wave"
 [extra]
-thumbnail = "/canvas/coastal_wave/thumbnail.png"
+thumbnail = "/demo/coastal_wave/thumbnail.png"
 thumbnail_alt = "Coastal wave"
 description = "波打ち際で砕波する水のシミュレーション"
-preview_video = "/canvas/coastal_wave/preview.webm"
+preview_video = "/demo/coastal_wave/preview.webm"
 
 [taxonomies]
 tags = ["bevy", "wasm", "gamedev"]

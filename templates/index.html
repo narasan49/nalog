@@ -6,7 +6,7 @@
   <p class="hero-description">{{ config.description }}</p>
 </section>
 
-{% set canvas = get_section(path="canvas/_index.md") %}
+{% set demo_section = get_section(path="demo/_index.md") %}
 <section class="featured-demo" id="featured-demo-section" style="display:none;">
   <h2>Featured Demo</h2>
   <a class="featured-demo__card" id="featured-demo-card" href="#">
@@ -26,7 +26,7 @@
 <script>
 (function () {
   const demos = [
-    {% for page in canvas.pages %}{% if page.extra.preview_video %}
+    {% for page in demo_section.pages %}{% if page.extra.preview_video %}
     {
       title: {{ page.title | json_encode | safe }},
       description: {{ page.extra.description | default(value="") | json_encode | safe }},

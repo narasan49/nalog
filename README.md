@@ -54,15 +54,15 @@ out/
 ```bash
 # デモ名は JS/WASM のファイル名プレフィックスに合わせる
 DEMO_NAME=various_shapes
-mkdir -p nalog/static/canvas/$DEMO_NAME
+mkdir -p nalog/static/demo/$DEMO_NAME
 
-cp out/${DEMO_NAME}.js       nalog/static/canvas/$DEMO_NAME/
-cp out/${DEMO_NAME}_bg.wasm  nalog/static/canvas/$DEMO_NAME/
+cp out/${DEMO_NAME}.js       nalog/static/demo/$DEMO_NAME/
+cp out/${DEMO_NAME}_bg.wasm  nalog/static/demo/$DEMO_NAME/
 ```
 
 ディレクトリ構成:
 ```
-static/canvas/
+static/demo/
 └── various_shapes/
     ├── various_shapes.js
     └── various_shapes_bg.wasm
@@ -70,10 +70,10 @@ static/canvas/
 
 ### 3. デモ記事を作成
 
-`content/canvas/<slug>.md` を作成します。
+`content/demo/<slug>.md` を作成します。
 
 ```bash
-cat > nalog/content/canvas/various-shapes.md << 'EOF'
+cat > nalog/content/demo/various-shapes.md << 'EOF'
 +++
 title = "Various Shapes デモ"
 date = 2026-04-05
@@ -93,7 +93,7 @@ EOF
 
 | パラメータ | 必須 | デフォルト | 説明 |
 |-----------|------|----------|------|
-| `name`    | ✓    | —        | デモ名。`static/canvas/<name>/<name>.js` に対応 |
+| `name`    | ✓    | —        | デモ名。`static/demo/<name>/<name>.js` に対応 |
 | `width`   |      | `"800"`  | canvas の幅 (px) |
 | `height`  |      | `"600"`  | canvas の高さ (px) |
 
@@ -136,7 +136,7 @@ npx serve -p 8080 public/ `
 make serve
 ```
 
-ブラウザで http://localhost:8080/canvas/dam-break/ などを開き、
+ブラウザで http://localhost:8080/demo/dam-break/ などを開き、
 Bevy の canvas が表示されることを確認します。
 
 > `static/demos/` は `.gitignore` で除外されているためリポジトリには含まれません。
@@ -281,7 +281,7 @@ nalog/
 ├── content/
 │   ├── _index.md
 │   ├── blog/           # 技術記事
-│   └── canvas/         # デモページ
+│   └── demo/           # デモページ
 ├── templates/
 │   ├── base.html
 │   ├── index.html

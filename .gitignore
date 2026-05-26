@@ -1,6 +1,6 @@
 public/
-static/canvas/*/*.wasm
-static/canvas/*/*.js
+static/demo/*/*.wasm
+static/demo/*/*.js
 static/videos/
 .DS_Store
 Thumbs.db
